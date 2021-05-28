@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "nms-example"
+version = "0.1.0"
+description = ""
+authors = ["Dmitry N Arkhipov <diman.dba@gmail.com>"]
+packages = [
+    { include = "nms" }
+]
+
+[tool.poetry.dependencies]
+python = "3.9.*"
+aiosql = "^3.2.0"
+fastapi = "^0.65.1"
+asyncpg = "^0.23.0"
+gunicorn = "^20.1.0"
+scipy = "^1.6.3"
+uvicorn = "^0.13.4"
+python-dotenv = "^0.17.1"
+aiocache = "^0.11.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+aiosqlembic = "^0.3.10"
+pytest-cov = "^2.11.1"
+mypy = "^0.812"
+flake8 = "^3.9.2"
+black = "^21.5b1"
+isort = "^5.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+

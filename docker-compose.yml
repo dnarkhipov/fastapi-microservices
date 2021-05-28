@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  nms-db:
+    container_name: nms-db
+    restart: 'always'
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    volumes:
+      - nms-db-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    environment:
+      - TZ=Europe/Moscow
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres!
+
+  nms-cfg:
+      container_name: nms-cfg
+      restart: 'always'
+      command: uvicorn nms.cfg.main:app --host 0.0.0.0 --port 4040 --workers 1  --log-config loggers.json
+      build:
+        context: .
+        dockerfile: Dockerfile
+      depends_on:
+        - nms-db
+      volumes:
+        - ./nms:/opt/app/nms
+      ports:
+        - 4041:4040
+      environment:
+        - TZ=Europe/Moscow
+        - DEBUG=True
+        - ENVIRONMENT=dev
+        - DB_NMS_DSN=postgres://nms:nms@nms-db:5432/nms
+        - DB_DWH_DSN=postgres://dwh:dwh@nms-db:5432/dwh
+        - MQ_DSN=amqp://nms:nms@nms-mq:5672/
+        - JWT_SECRET_KEY=P4xCg7Dhk+Db
+
+  nms-ctrl:
+      container_name: nms-ctrl
+      restart: 'always'
+      command: uvicorn nms.ctrl.main:app --host 0.0.0.0 --port 4040 --workers 1  --log-config loggers.json
+      build:
+        context: .
+        dockerfile: Dockerfile
+      depends_on:
+        - nms-db
+      volumes:
+        - ./nms:/opt/app/nms
+      ports:
+        - 4042:4040
+      environment:
+        - TZ=Europe/Moscow
+        - DEBUG=True
+        - ENVIRONMENT=dev
+        - DB_NMS_DSN=postgres://nms:nms@nms-db:5432/nms
+        - DB_DWH_DSN=postgres://dwh:dwh@nms-db:5432/dwh
+        - MQ_DSN=amqp://nms:nms@nms-mq:5672/
+        - JWT_SECRET_KEY=P4xCg7Dhk+Db
+
+x-disabled:
+  nms-mq:
+    container_name: nms-mq
+    restart: 'always'
+    build:
+      context: ./rabbitmq
+      dockerfile: Dockerfile
+    expose:
+      - 5672
+    ports:
+      - 15672:15672
+    environment:
+      - TZ=Europe/Moscow
+      - RABBITMQ_DEFAULT_USER=nms
+      - RABBITMQ_DEFAULT_PASS=nms
+
+volumes:
+   nms-db-data:
+     external: true

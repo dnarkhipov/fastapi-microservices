@@ -40,25 +40,23 @@ DB_DWH_DSN=postgres://dwh:dwh@nms-db:5432/dwh
 JWT_SECRET_KEY=P4xCg7Dhk+Db
 ```
 
-Сервисы могут работать одновременно с разными БД, доступ к которым определяется базовым типом используемого репозитория
+Сервисы могут работать одновременно с разными БД, доступ к которым определяется базовым типом используемого репозитория.
+
+Репозитории для работы с БД: `nms.common.db.repositories`
+
+В зависимости от типа репозитория, пул подключений к БД создается с соответствующим DSN: `DB_NMS_DSN`, `DB_DWH_DSN` и т.д.
 ```python
 # типы репозиториев БД
 class BaseNmsRepository(BaseRepository):
     _dsn_type = DSNType.NMS
 
-
-class BaseAuthRepository(BaseRepository):
-    _dsn_type = DSNType.AUTH
-
-
 class BaseDwhRepository(BaseRepository):
     _dsn_type = DSNType.DWH
-
-
-class BaseAdminRepository(BaseRepository):
-    _dsn_type = DSNType.ADMIN
-
 ```
+
+Пул подключений создается при вызове `get_db_repository()` (см. `nms/common/api/dependencies/database.py`)
+
+В проекте не используется ORM, все SQL -запросы реализованы через библиотеку [aiosql](https://pypi.org/project/aiosql/)
 
 
 ### Инициализация окружения с помощью [Poetry](https://python-poetry.org/docs/)
